@@ -295,25 +295,32 @@ class DeviceHandler(object):
 
         if (len(attr_filter)): #filter by attr
             LOGGER.debug(f"[{timeStamp}] |{__name__}| Filtering devices by {attr_filter}")
+            
             page = db.session.query(Device) \
-                            .join(DeviceTemplateMap, isouter=True) \
-                            .join(DeviceTemplate) \
-                            .join(DeviceAttr, isouter=True) \
-                            .join(DeviceOverride, (Device.id == DeviceOverride.did) & (DeviceAttr.id == DeviceOverride.aid), isouter=True) \
-                            .filter(*label_filter) \
-                            .filter(*template_filter) \
-                            .filter(or_(*attr_filter)) \
-                            .order_by(sortBy) \
-                            .paginate(**pagination)
+                            .join(DeviceTemplateMap, isouter=True) 
+            
+            if sensitive_data: #aditional joins for sensitive data
+                page = page.join(DeviceTemplate) \
+                        .join(DeviceAttr, isouter=True) \
+                        .join(DeviceOverride, (Device.id == DeviceOverride.did) & (DeviceAttr.id == DeviceOverride.aid), isouter=True) 
+                
+            page = page.filter(*label_filter) \
+                    .filter(*template_filter) \
+                    .filter(or_(*attr_filter)) \
+                    .order_by(sortBy) \
+                    .paginate(**pagination)
 
         elif label_filter or template_filter: # only filter by label or/and template
             LOGGER.debug(f"[{timeStamp}] |{__name__}| Filtering devices by label {target_label}")
             page = db.session.query(Device) \
-                    .join(DeviceTemplateMap, isouter=True) \
-                    .join(DeviceTemplate) \
-                    .join(DeviceAttr, isouter=True) \
-                    .join(DeviceOverride, (Device.id == DeviceOverride.did) & (DeviceAttr.id == DeviceOverride.aid), isouter=True) \
-                    .filter(*label_filter) \
+                            .join(DeviceTemplateMap, isouter=True) 
+            
+            if sensitive_data: #aditional joins for sensitive data
+                page = page.join(DeviceTemplate) \
+                        .join(DeviceAttr, isouter=True) \
+                        .join(DeviceOverride, (Device.id == DeviceOverride.did) & (DeviceAttr.id == DeviceOverride.aid), isouter=True) 
+                
+            page = page.filter(*label_filter) \
                     .filter(*template_filter) \
                     .order_by(sortBy) \
                     .paginate(**pagination)
