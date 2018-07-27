@@ -1005,7 +1005,7 @@ def flask_internal_get_devices():
     headers.
     """
     try:
-        result = DeviceHandler.get_devices(request, True)
+        result = DeviceHandler.get_devices(request, False)
         LOGGER.info(f'[{timeStamp}] |{__name__}| Getting known internal devices.')
         return make_response(jsonify(result), 200)
     except HTTPRequestError as e:
@@ -1019,7 +1019,7 @@ def flask_internal_get_devices():
 @device.route('/internal/device/<device_id>', methods=['GET'])
 def flask_internal_get_device(device_id):
     try:
-        result = DeviceHandler.get_device(request, device_id, True)
+        result = DeviceHandler.get_device(request, device_id, False)
         LOGGER.info(f'[{timeStamp}] |{__name__}| Get known device with id: {device_id}.')
         return make_response(jsonify(result), 200)
     except HTTPRequestError as e:
